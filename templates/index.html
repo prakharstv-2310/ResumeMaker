@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ResumeMaker — Next-Gen AI Resume & ATS Career Platform</title>
+  <meta name="description" content="Build high-impact, ATS-optimized resumes in seconds with ResumeMaker. Powered by Google Gemini AI, real-time keyword scoring, and 7 executive A4 templates.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+</head>
+<body>
+  <!-- Ambient Gradients & Background Mesh -->
+  <div class="bg-gradient"></div>
+  <div class="bg-mesh-grid"></div>
+  <div class="glass-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <!-- Header Navigation -->
+  <header class="glass-header">
+    <div class="header-container">
+      <a href="{{ url_for('home') }}" class="brand-wrap" id="brandLogo">
+        <div class="brand-icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <span class="site-title">Resume<span class="accent-text">Maker</span><span class="dot">.</span></span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#features" class="nav-link hide-mobile">Features</a>
+        <a href="#templates" class="nav-link hide-mobile">Templates</a>
+        <a href="#how-it-works" class="nav-link hide-mobile">How It Works</a>
+        
+        {% if session.get('user') %}
+          <a href="{{ url_for('dashboard') }}" class="btn-primary" id="btnDashboard">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Resume Studio
+          </a>
+
+          <!-- User Dropdown Menu -->
+          <div class="user-menu-dropdown">
+            <button class="dropdown-trigger" onclick="toggleUserDropdown(event)" aria-label="Toggle user menu" id="userMenuBtn">
+              <div class="user-avatar">{{ session['user']['username'][0].upper() }}</div>
+            </button>
+            <div class="dropdown-menu" id="userDropdownMenu">
+              <div class="dropdown-header">
+                <span class="user-name">{{ session['user']['username'] }}</span>
+                <span class="user-email">{{ session['user']['email'] }}</span>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="{{ url_for('dashboard') }}" class="dropdown-item">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Resume Studio
+              </a>
+              <a href="{{ url_for('my_resumes') }}" class="dropdown-item">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                My Resumes
+              </a>
+              {% if session['user']['email'] in ['admin@resumemaker.com', 'admin@resumate.com'] %}
+                <a href="{{ url_for('admin_dashboard') }}" class="dropdown-item">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="9" y1="9" x2="21" y2="9"/></svg>
+                  Admin Panel
+                </a>
+              {% endif %}
+              <a href="{{ url_for('profile') }}" class="dropdown-item">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M16 20v-2a4 4 0 0 0-8 0v2"/></svg>
+                Account Profile
+              </a>
+              <div class="dropdown-divider"></div>
+              <a href="{{ url_for('logout') }}" class="dropdown-item logout-item">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sign Out
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{{ url_for('auth') }}?form=signin" class="btn-ghost" id="navLogin">Sign In</a>
+          <a href="{{ url_for('auth') }}?form=signup" class="btn-primary" id="navSignup">
+            Get Started Free
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Hero Section -->
+    <section class="hero" id="heroSection">
+      <div class="hero-left">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
+          <div class="pill-badge">
+            <span class="spark-dot"></span>
+            <span>Powered by Gemini 2.5 AI &amp; Real-Time ATS Engine</span>
+          </div>
+          <span class="maker-chip"><span class="maker-chip-dot"></span> Redesigned by Prakhar Srivastava</span>
+        </div>
+
+        <h1 class="hero-headline">
+          Build ATS-Beating Resumes in <span class="gradient-text">Minutes</span>.
+        </h1>
+
+        <p class="hero-sub">
+          ResumeMaker pairs intelligent AI writing engines with real-time job description keyword scoring and 7 print-ready A4 layouts to help you land interviews faster.
+        </p>
+
+        <div class="hero-cta-group">
+          {% if session.get('user') %}
+            <a href="{{ url_for('dashboard') }}" class="btn-primary">
+              Launch Resume Studio
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="{{ url_for('my_resumes') }}" class="btn-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              View My Resumes
+            </a>
+          {% else %}
+            <a href="{{ url_for('auth') }}?form=signup" class="btn-primary">
+              Build Your Resume (Free)
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="#templates" class="btn-secondary">
+              Explore 7 Templates
+            </a>
+          {% endif %}
+        </div>
+
+        <div class="hero-metrics">
+          <div class="metric-item">
+            <span class="metric-value">50,000+</span>
+            <span class="metric-label">Resumes Built</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-value">98.4%</span>
+            <span class="metric-label">ATS Match Rate</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-value">7 Pro</span>
+            <span class="metric-label">A4 Formats</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-value">4.9 / 5</span>
+            <span class="metric-label">Candidate Rating</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Visual Mockup -->
+      <div class="hero-right">
+        <div class="preview-stage">
+          <div class="mockup-resume-card">
+            <div class="mockup-header">
+              <div class="mock-avatar">RM</div>
+              <div class="mock-title-area">
+                <div class="mock-name">Alex Morgan</div>
+                <div class="mock-role">Lead Full Stack Engineer • San Francisco, CA</div>
+              </div>
+            </div>
+            
+            <div class="mock-body">
+              <div class="mock-section-title">Professional Summary (AI Generated)</div>
+              <div class="mock-lines">
+                <div class="mock-line full"></div>
+                <div class="mock-line long"></div>
+                <div class="mock-line med"></div>
+              </div>
+
+              <div class="mock-section-title">Core Competencies & Keywords</div>
+              <div class="mock-chips">
+                <span class="mock-chip">TypeScript</span>
+                <span class="mock-chip">React / Next.js</span>
+                <span class="mock-chip">Python</span>
+                <span class="mock-chip">Distributed Systems</span>
+                <span class="mock-chip">GraphQL</span>
+                <span class="mock-chip">Cloud Architecture</span>
+              </div>
+
+              <div class="mock-section-title">Experience Highlights</div>
+              <div class="mock-lines">
+                <div class="mock-line long"></div>
+                <div class="mock-line med"></div>
+                <div class="mock-line full"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating Badges -->
+          <div class="floating-badge badge-top-right">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            ATS Score: 98% Match
+          </div>
+
+          <div class="floating-badge badge-bottom-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Gemini Flash Summary
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+      <div class="section-head">
+        <span class="section-kicker">ENGINEERED FOR CAREER IMPACT</span>
+        <h2 class="section-title">Everything You Need to Stand Out</h2>
+        <p class="section-subtitle">No formatting headaches. No guesswork. Built from the ground up to beat recruiter applicant tracking filters.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-box icon-purple">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <h3>Gemini AI Summary Writer</h3>
+          <p>Generate targeted, high-impact executive summaries in seconds tailored specifically to your target job title, experience level, and key skills.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box icon-cyan">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h3>Real-Time ATS Job Matcher</h3>
+          <p>Paste any target job description. Our intelligent keyword engine scans your resume against the posting, detects missing skills, and delivers an exact match score.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box icon-emerald">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          </div>
+          <h3>7 Recruiter-Approved Layouts</h3>
+          <p>Switch between Modern, Minimal, Creative, Developer, Startup, Executive, and Academic templates with one click. Your content automatically reflows perfectly.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box icon-indigo">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          </div>
+          <h3>Pixel-Perfect PDF Export</h3>
+          <p>Direct-to-PDF high-resolution print engine adhering strictly to global A4 physical standards. Zero awkward line wraps or chopped pages.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box icon-amber">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+          </div>
+          <h3>Real-Time Auto-Save Vault</h3>
+          <p>Every keystroke, added certificate, and experience item is saved silently to your secure cloud draft. Pick up right where you left off at any time.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box icon-rose">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </div>
+          <h3>14+ Dynamic Custom Sections</h3>
+          <p>Add research publications, patents, test scores, speaking conferences, volunteer initiatives, and custom categories on demand with instant reordering.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Templates Showcase -->
+    <section class="templates-showcase" id="templates">
+      <div class="section-head">
+        <span class="section-kicker">EXECUTIVE A4 DESIGNS</span>
+        <h2 class="section-title">Designed for Every Industry</h2>
+        <p class="section-subtitle">Engineered to pass both automated parsing bots and impress human hiring directors.</p>
+      </div>
+
+      <div class="templates-grid">
+        <div class="tpl-card">
+          <div class="tpl-card-preview prev-modern">
+            <div class="mock-avatar">M</div>
+          </div>
+          <div class="tpl-card-body">
+            <span class="tpl-name">Modern Indigo</span>
+            <span class="tpl-action">Tech & Product →</span>
+          </div>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-card-preview prev-minimal">
+            <div class="mock-avatar" style="background:#475569;">MI</div>
+          </div>
+          <div class="tpl-card-body">
+            <span class="tpl-name">Clean Minimal</span>
+            <span class="tpl-action">Corporate & Law →</span>
+          </div>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-card-preview prev-developer">
+            <div class="mock-avatar" style="background:#059669;">&lt;/&gt;</div>
+          </div>
+          <div class="tpl-card-body">
+            <span class="tpl-name">Developer Slate</span>
+            <span class="tpl-action">Software Engineers →</span>
+          </div>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-card-preview prev-creative">
+            <div class="mock-avatar" style="background:#0d9488;">CR</div>
+          </div>
+          <div class="tpl-card-body">
+            <span class="tpl-name">Creative Teal</span>
+            <span class="tpl-action">Designers & Artists →</span>
+          </div>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-card-preview prev-startup">
+            <div class="mock-avatar" style="background:#ea580c;">ST</div>
+          </div>
+          <div class="tpl-card-body">
+            <span class="tpl-name">Startup Amber</span>
+            <span class="tpl-action">Founders & Growth →</span>
+          </div>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-card-preview prev-executive">
+            <div class="mock-avatar" style="background:#78716c;">EX</div>
+          </div>
+          <div class="tpl-card-body">
+            <span class="tpl-name">Executive Dark</span>
+            <span class="tpl-action">Directors & C-Suite →</span>
+          </div>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-card-preview prev-academic">
+            <div class="mock-avatar" style="background:#2563eb;">AC</div>
+          </div>
+          <div class="tpl-card-body">
+            <span class="tpl-name">Academic Blue</span>
+            <span class="tpl-action">Research & Ph.D →</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="workflow-section" id="how-it-works">
+      <div class="section-head">
+        <span class="section-kicker">STREAMLINED 3-STEP FLOW</span>
+        <h2 class="section-title">How ResumeMaker Works</h2>
+        <p class="section-subtitle">From blank canvas to application-ready in under five minutes.</p>
+      </div>
+
+      <div class="steps-row">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h4>Enter or Import Your History</h4>
+          <p>Fill out structured modules for experience, academics, skills, and projects with real-time autosave security.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h4>AI Enhance & Match ATS</h4>
+          <p>Let Gemini Flash craft high-impact summaries and run a live ATS diagnostic against your target job listing.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h4>Export Print-Ready PDF</h4>
+          <p>Pick your favorite layout and generate a pristine, recruiter-ready A4 PDF document in one click.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action Banner -->
+    <section class="cta-banner">
+      <h2>Ready to Land More Interviews?</h2>
+      <p>Join thousands of ambitious professionals using ResumeMaker to craft high-conversion, ATS-optimized resumes.</p>
+      
+      {% if session.get('user') %}
+        <a href="{{ url_for('dashboard') }}" class="btn-primary" style="font-size:16px;padding:14px 34px;">
+          Go to Resume Studio
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      {% else %}
+        <a href="{{ url_for('auth') }}?form=signup" class="btn-primary" style="font-size:16px;padding:14px 34px;">
+          Create Your Free Resume Now
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      {% endif %}
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <a href="{{ url_for('home') }}" class="brand-wrap">
+          <div class="brand-icon-box" style="width:32px;height:32px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <span class="site-title" style="font-size:19px;">Resume<span class="accent-text">Maker</span><span class="dot">.</span></span>
+        </a>
+
+        <div class="footer-links">
+          <a href="{{ url_for('home') }}">Home</a>
+          <a href="{{ url_for('dashboard') }}">Resume Studio</a>
+          <a href="{{ url_for('my_resumes') }}">My Resumes</a>
+          {% if session.get('user') %}
+            <a href="{{ url_for('profile') }}">Profile</a>
+          {% else %}
+            <a href="{{ url_for('auth') }}?form=signin">Login</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 ResumeMaker. Next-Gen AI Resume Platform. All rights reserved.</p>
+        <span class="maker-credit">
+          <span class="maker-heart">♥</span>
+          UI designed &amp; built by <span class="maker-name">Prakhar Srivastava</span>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/dropdown.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile — ResumeMaker</title>
+  <meta name="description" content="Manage your ResumeMaker account settings, change your password, username or email.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown.css') }}" />
+  <style>
+    :root {
+      --bg: #070a12;
+      --card: rgba(15, 23, 42, 0.78);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --dim: #64748b;
+      --primary: #6366f1;
+      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 45%, #06b6d4 100%);
+      --header-h: 68px;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: -2;
+      background: radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.15) 0%, transparent 45%),
+                  radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.15) 0%, transparent 45%),
+                  var(--bg);
+      pointer-events: none;
+    }
+    .glass-blobs { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .blob { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35; }
+    .blob-1 { background: #6366f1; width: 450px; height: 450px; top: -100px; left: -100px; }
+    .blob-2 { background: #a855f7; width: 400px; height: 400px; bottom: -100px; right: -100px; }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(7, 10, 18, 0.82);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h);
+    }
+    .hdr {
+      max-width: 1200px; margin: 0 auto; height: 100%;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 28px;
+    }
+    .brand-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand-icon-box {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--primary-gradient);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+    .logo {
+      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 21px;
+      letter-spacing: -0.5px; color: #ffffff; text-decoration: none;
+    }
+    .logo .accent-text {
+      background: var(--primary-gradient);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .logo .dot { color: #06b6d4; }
+    .hdr-right { display: flex; align-items: center; gap: 16px; }
+
+    /* Main Container */
+    main { max-width: 680px; margin: 0 auto; padding: 48px 24px 80px; }
+    .page-title {
+      font-family: 'Outfit', sans-serif; font-size: 34px; font-weight: 800;
+      color: #ffffff; letter-spacing: -0.5px; margin-bottom: 6px;
+    }
+    .page-sub { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
+
+    /* Profile Card */
+    .profile-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+      padding: 38px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6);
+    }
+    .profile-avatar-large {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: var(--primary-gradient);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 32px; color: #fff; margin: 0 auto 28px auto;
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.45);
+      border: 3px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Form Fields */
+    .form-group { margin-bottom: 22px; }
+    .form-group.row-split { display: flex; gap: 16px; }
+    .form-group.row-split > div { flex: 1; }
+    label {
+      display: block; font-size: 11.5px; font-weight: 700; letter-spacing: 0.8px;
+      color: #cbd5e1; text-transform: uppercase; margin-bottom: 8px;
+    }
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%; padding: 12px 16px; border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(2, 6, 23, 0.65); color: #ffffff;
+      font-size: 14.5px; font-family: inherit; outline: none;
+      transition: all 0.2s ease;
+    }
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+      background: rgba(2, 6, 23, 0.85);
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 14px 18px; border-radius: 12px; font-size: 14px; font-weight: 500;
+      margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
+    }
+    .alert-success { background: rgba(6, 78, 59, 0.9); color: #34d399; border: 1px solid #059669; }
+    .alert-error { background: rgba(69, 10, 10, 0.9); color: #f87171; border: 1px solid #dc2626; }
+
+    .actions-row { display: flex; justify-content: flex-end; margin-top: 32px; }
+    .btn-save {
+      padding: 12px 28px; border-radius: 12px;
+      background: var(--primary-gradient); color: #fff; font-size: 14.5px;
+      font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(139, 92, 246, 0.55); }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="glass-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <header>
+    <div class="hdr">
+      <a href="{{ url_for('home') }}" class="brand-wrap">
+        <div class="brand-icon-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <span class="logo">Resume<span class="accent-text">Maker</span><span class="dot">.</span></span>
+      </a>
+
+      <div class="hdr-right">
+        <!-- User Dropdown Menu -->
+        <div class="user-menu-dropdown">
+          <button class="dropdown-trigger" onclick="toggleUserDropdown(event)" aria-label="Toggle user menu">
+            <div class="user-avatar">{{ session['user']['username'][0].upper() }}</div>
+          </button>
+          <div class="dropdown-menu" id="userDropdownMenu">
+            <div class="dropdown-header">
+              <span class="user-name">{{ session['user']['username'] }}</span>
+              <span class="user-email">{{ session['user']['email'] }}</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="{{ url_for('dashboard') }}" class="dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Resume Studio
+            </a>
+            <a href="{{ url_for('my_resumes') }}" class="dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              My Resumes
+            </a>
+            {% if session['user']['email'] in ['admin@resumemaker.com', 'admin@resumate.com'] %}
+              <a href="{{ url_for('admin_dashboard') }}" class="dropdown-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="9" y1="9" x2="21" y2="9"/></svg>
+                Admin Panel
+              </a>
+            {% endif %}
+            <a href="{{ url_for('profile') }}" class="dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M16 20v-2a4 4 0 0 0-8 0v2"/></svg>
+              My Profile
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="{{ url_for('logout') }}" class="dropdown-item logout-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Sign Out
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <h1 class="page-title">Profile Settings</h1>
+    <p class="page-sub">Update your account credentials, login email, and security password.</p>
+
+    <div class="profile-card">
+      <div class="profile-avatar-large">{{ user.username[0].upper() }}</div>
+
+      {% if msg %}
+      <div class="alert alert-{{ msg.type }}">
+        {% if msg.type == 'success' %}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        {% else %}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        {% endif %}
+        <span>{{ msg.text }}</span>
+      </div>
+      {% endif %}
+
+      <form action="{{ url_for('profile_update') }}" method="POST">
+        <div class="form-group">
+          <label for="username">Username / Full Name</label>
+          <input type="text" id="username" name="username" value="{{ user.username }}" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" value="{{ user.email }}" required />
+        </div>
+
+        <div class="form-group row-split" style="margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border);">
+          <div>
+            <label for="password">New Password (Leave blank to keep current)</label>
+            <input type="password" id="password" name="password" placeholder="••••••••" />
+          </div>
+          <div>
+            <label for="confirm_password">Confirm New Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••••" />
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <button type="submit" class="btn-save">Save Profile Changes</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer style="max-width:680px;margin:0 auto;padding:0 24px 40px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;font-size:13px;color:var(--dim);">
+    <span>&copy; 2026 ResumeMaker. All rights reserved.</span>
+    <span>UI designed &amp; built by <strong style="font-family:'Outfit',sans-serif;font-weight:700;background:var(--primary-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Prakhar Srivastava</strong></span>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/dropdown.js') }}"></script>
+</body>
+</html>

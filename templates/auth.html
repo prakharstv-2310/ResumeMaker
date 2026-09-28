@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ResumeMaker — Sign In or Create Account</title>
+  <meta name="description" content="Access your ResumeMaker workspace. Create and optimize professional AI-powered resumes for top company applicant tracking systems.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body>
+  <!-- Back to Home Button -->
+  <a href="{{ url_for('home') }}" class="btn-back-home" id="btnBackHome">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to Home
+  </a>
+
+  <!-- Ambient Background -->
+  <div class="bg-gradient"></div>
+  <div class="glass-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <div class="auth-wrapper" id="authWrapper">
+    <!-- Left Form Side -->
+    <div class="auth-form-side">
+      <div class="auth-header">
+        <!-- Interactive Tabs -->
+        <div class="auth-tabs" role="tablist">
+          <button type="button" class="auth-tab-btn {% if form != 'signup' %}active{% endif %}" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
+          <button type="button" class="auth-tab-btn {% if form == 'signup' %}active{% endif %}" id="tabSignUp" onclick="switchAuthTab('signup')">Create Account</button>
+        </div>
+
+        <h1 class="auth-title" id="authHeading">
+          {% if form == 'signup' %}Join ResumeMaker{% else %}Welcome Back{% endif %}
+        </h1>
+        <p class="auth-subtitle" id="authSubheading">
+          {% if form == 'signup' %}Start creating interview-ready, ATS-beating resumes today.{% else %}Sign in to continue editing and exporting your resumes.{% endif %}
+        </p>
+      </div>
+
+      <!-- Sign In Form -->
+      <form action="{{ url_for('login') }}" method="POST" class="form-pane {% if form != 'signup' %}active{% endif %}" id="signInPane">
+        <div class="input-group">
+          <label class="input-label" for="loginEmail">Email Address</label>
+          <div class="input-wrapper">
+            <span class="input-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </span>
+            <input type="email" id="loginEmail" name="email" class="input-field" placeholder="you@example.com" required />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="loginPassword">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <input type="password" id="loginPassword" name="password" class="input-field" placeholder="••••••••" required />
+            <button type="button" class="btn-toggle-pw" onclick="togglePasswordVisibility('loginPassword', this)" aria-label="Toggle password visibility">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth-submit" id="btnSubmitLogin">
+          Sign In
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+
+        <div class="auth-divider">or continue with</div>
+
+        <div class="social-buttons">
+          <a href="#" class="social-btn" onclick="alert('Demo account login: use your credentials or sign up directly.'); return false;">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.8 0-1.3.2-2.1.4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z"/></svg>
+            Google
+          </a>
+          <a href="#" class="social-btn" onclick="alert('Demo account login: use your credentials or sign up directly.'); return false;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+            LinkedIn
+          </a>
+        </div>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form action="{{ url_for('signup') }}" method="POST" class="form-pane {% if form == 'signup' %}active{% endif %}" id="signUpPane">
+        <div class="input-group">
+          <label class="input-label" for="signupUsername">Full Name / Username</label>
+          <div class="input-wrapper">
+            <span class="input-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <input type="text" id="signupUsername" name="username" class="input-field" placeholder="John Doe" required />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="signupEmail">Email Address</label>
+          <div class="input-wrapper">
+            <span class="input-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </span>
+            <input type="email" id="signupEmail" name="email" class="input-field" placeholder="you@example.com" required />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="signupPassword">Create Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <input type="password" id="signupPassword" name="password" class="input-field" placeholder="••••••••" required />
+            <button type="button" class="btn-toggle-pw" onclick="togglePasswordVisibility('signupPassword', this)" aria-label="Toggle password visibility">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="signupConfirm">Confirm Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <input type="password" id="signupConfirm" name="confirm_password" class="input-field" placeholder="••••••••" required />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth-submit" id="btnSubmitSignup">
+          Create Account Free
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </form>
+    </div>
+
+    <!-- Right Feature Promo Side -->
+    <div class="auth-promo-side">
+      <div class="promo-brand">
+        <div class="promo-brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <span class="promo-brand-text">Resume<span>Maker</span></span>
+      </div>
+
+      <div class="promo-content">
+        <h2 class="promo-headline">Unlock Executive-Grade Resume Power.</h2>
+        <div class="promo-features-list">
+          <div class="promo-feature-item">
+            <div class="promo-feature-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div class="promo-feature-text">
+              <h5>Gemini Flash AI Writing</h5>
+              <p>Generate tailored executive summaries and bullet points in seconds.</p>
+            </div>
+          </div>
+
+          <div class="promo-feature-item">
+            <div class="promo-feature-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div class="promo-feature-text">
+              <h5>Real-Time ATS Keyword Matcher</h5>
+              <p>Compare against job descriptions to score 0-100% keyword alignment.</p>
+            </div>
+          </div>
+
+          <div class="promo-feature-item">
+            <div class="promo-feature-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+            </div>
+            <div class="promo-feature-text">
+              <h5>7 High-Impact Layouts</h5>
+              <p>Export directly to pixel-perfect A4 printable PDF documents.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="promo-footer-stats">
+        <span class="stat-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          50K+ Resumes Generated
+        </span>
+        <span class="stat-pill" style="color:#a5b4fc;">
+          ★ 4.9 Candidate Rating
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchAuthTab(target) {
+      const isSignup = target === 'signup';
+      const tabSignIn = document.getElementById('tabSignIn');
+      const tabSignUp = document.getElementById('tabSignUp');
+      const signInPane = document.getElementById('signInPane');
+      const signUpPane = document.getElementById('signUpPane');
+      const heading = document.getElementById('authHeading');
+      const subheading = document.getElementById('authSubheading');
+
+      if (isSignup) {
+        tabSignUp.classList.add('active');
+        tabSignIn.classList.remove('active');
+        signUpPane.classList.add('active');
+        signInPane.classList.remove('active');
+        heading.textContent = 'Join ResumeMaker';
+        subheading.textContent = 'Start creating interview-ready, ATS-beating resumes today.';
+        history.replaceState(null, '', '?form=signup');
+      } else {
+        tabSignIn.classList.add('active');
+        tabSignUp.classList.remove('active');
+        signInPane.classList.add('active');
+        signUpPane.classList.remove('active');
+        heading.textContent = 'Welcome Back';
+        subheading.textContent = 'Sign in to continue editing and exporting your resumes.';
+        history.replaceState(null, '', '?form=signin');
+      }
+    }
+
+    function togglePasswordVisibility(fieldId, btn) {
+      const field = document.getElementById(fieldId);
+      if (!field) return;
+      if (field.type === 'password') {
+        field.type = 'text';
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+      } else {
+        field.type = 'password';
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+      }
+    }
+  </script>
+</body>
+</html>

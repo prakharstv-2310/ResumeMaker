@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ResumeMaker — AI Resume Studio</title>
+  <meta name="description" content="Build your professional resume with ResumeMaker. Fill in your details across organized sections, match ATS keywords, and generate a stunning resume instantly.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+  <div class="bg-gradient"></div>
+  <div class="glass-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="glass-header">
+    <div class="header-container">
+      <a href="{{ url_for('home') }}" class="brand-wrap">
+        <div class="brand-icon-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <span class="site-title">Resume<span class="accent-text">Maker</span><span class="dot">.</span></span>
+      </a>
+      <div class="header-center">
+        <!-- Auto-save badge -->
+        <div class="save-badge" id="saveBadge">
+          <span class="save-dot"></span>
+          <span id="saveText">Ready & Auto-Saving</span>
+        </div>
+      </div>
+      <div class="user-controls">
+        <!-- User Dropdown Menu -->
+        <div class="user-menu-dropdown">
+          <button class="dropdown-trigger" onclick="toggleUserDropdown(event)" aria-label="Toggle user menu">
+            <div class="user-avatar">{{ session['user']['username'][0].upper() }}</div>
+          </button>
+          <div class="dropdown-menu" id="userDropdownMenu">
+            <div class="dropdown-header">
+              <span class="user-name">{{ session['user']['username'] }}</span>
+              <span class="user-email">{{ session['user']['email'] }}</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="{{ url_for('dashboard') }}" class="dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Build Resume
+            </a>
+            <a href="{{ url_for('my_resumes') }}" class="dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              My Resumes
+            </a>
+            {% if session['user']['email'] in ['admin@resumemaker.com', 'admin@resumate.com'] %}
+              <a href="{{ url_for('admin_dashboard') }}" class="dropdown-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="9" y1="9" x2="21" y2="9"/></svg>
+                Admin Panel
+              </a>
+            {% endif %}
+            <a href="{{ url_for('profile') }}" class="dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M16 20v-2a4 4 0 0 0-8 0v2"/></svg>
+              My Profile
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="{{ url_for('logout') }}" class="dropdown-item logout-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Logout
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-inner">
+        <p class="sidebar-label">RESUME SECTIONS</p>
+        <nav class="sidebar-nav">
+
+          <button class="nav-item active" onclick="showSection('basic',this)" id="nav-basic">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <span>Basic</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('academics',this)" id="nav-academics">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            <span>Academics</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('work',this)" id="nav-work">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            <span>Work Experience</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('projects',this)" id="nav-projects">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <span>Projects</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('skills',this)" id="nav-skills">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Skills</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('languages',this)" id="nav-languages">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
+            <span>Languages</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('social',this)" id="nav-social">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <span>Social Media</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('awards',this)" id="nav-awards">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+            <span>Awards</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('certifications',this)" id="nav-certifications">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <span>Certification</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('publications',this)" id="nav-publications">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>Publications</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('volunteering',this)" id="nav-volunteering">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span>Volunteering</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('competitions',this)" id="nav-competitions">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="8 6 2 12 8 18"/><polyline points="16 6 22 12 16 18"/></svg>
+            <span>Competitions</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('conferences',this)" id="nav-conferences">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Conferences & Workshops</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('testscores',this)" id="nav-testscores">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>Test Scores</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('patents',this)" id="nav-patents">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Patents</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('scholarships',this)" id="nav-scholarships">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span>Scholarships</span><div class="nav-dot"></div>
+          </button>
+
+          <button class="nav-item" onclick="showSection('extracurricular',this)" id="nav-extracurricular">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h6l2 5v3h-8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            <span>Extra Curricular</span><div class="nav-dot"></div>
+          </button>
+
+          <!-- Custom sections injected here -->
+          <div id="custom-nav-items"></div>
+
+          <button class="nav-item nav-add-custom" onclick="addCustomSection()" id="nav-custom-add">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <span>Add Custom Section</span>
+          </button>
+
+        </nav>
+
+        <!-- ATS Score Button -->
+        <button class="btn-ats" onclick="openATS()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Check ATS Score
+        </button>
+
+        <!-- Progress -->
+        <div class="sidebar-progress">
+          <p class="progress-label">COMPLETION</p>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progressFill"></div>
+          </div>
+          <p class="progress-percent" id="progressText">0%</p>
+        </div>
+
+        <p style="margin-top:18px;font-size:11.5px;line-height:1.6;color:var(--dim);text-align:center;">
+          Designed &amp; built by<br>
+          <strong style="font-family:'Outfit',sans-serif;font-weight:700;font-size:12.5px;background:var(--primary-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Prakhar Srivastava</strong>
+        </p>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <form action="{{ url_for('save_resume') }}" method="POST" enctype="multipart/form-data" id="resumeForm">
+
+        <!-- Hidden fields -->
+        <input type="hidden" name="template" id="selectedTemplate" value="modern">
+        <input type="hidden" name="photo_url" id="photoUrlField" value="">
+        <input type="hidden" name="resume_id" id="resumeIdField" value="{{ draft.resume_id if draft and draft.resume_id else (draft.data.resume_id if draft and draft.data and draft.data.resume_id else '') }}">
+
+        <!-- ===== BASIC ===== -->
+        <section class="form-panel active" id="section-basic">
+          <div class="section-header">
+            <div class="section-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div>
+              <h2 class="section-title">Basic Information</h2>
+              <p class="section-subtitle">Your personal details and contact information</p>
+            </div>
+          </div>
+
+          <!-- Template Picker -->
+          <div class="template-picker-wrap">
+            <p class="picker-label">Choose Resume Template</p>
+            <div class="template-cards">
+              <div class="template-card active" data-template="modern" onclick="selectTemplate('modern',this)">
+                <div class="template-preview modern-prev">
+                  <div class="prev-header-bar"></div>
+                  <div class="prev-line long"></div>
+                  <div class="prev-line med"></div>
+                  <div class="prev-line short"></div>
+                  <div class="prev-section-bar"></div>
+                  <div class="prev-line long"></div>
+                  <div class="prev-line med"></div>
+                </div>
+                <span>Modern</span>
+              </div>
+              <div class="template-card" data-template="minimal" onclick="selectTemplate('minimal',this)">
+                <div class="template-preview minimal-prev">
+                  <div class="prev-name-block"></div>
+                  <div class="prev-divider"></div>
+                  <div class="prev-line long"></div>
+                  <div class="prev-line med"></div>
+                  <div class="prev-line long"></div>
+                  <div class="prev-line short"></div>
+                </div>
+                <span>Minimal</span>
+              </div>
+              <div class="template-card" data-template="creative" onclick="selectTemplate('creative',this)">
+                <div class="template-preview creative-prev">
+                  <div class="prev-sidebar-col"></div>
+                  <div class="prev-main-col">
+                    <div class="prev-line long"></div>
+                    <div class="prev-line med"></div>
+                    <div class="prev-line long"></div>
+                    <div class="prev-line short"></div>
+                  </div>
+                </div>
+                <span>Creative</span>
+              </div>
+              <div class="template-card" data-template="developer" onclick="selectTemplate('developer',this)">
+                <div class="template-preview developer-prev" style="background:#0f172a; flex-direction:column; align-items:flex-start; border-top: 3px solid #38bdf8;">
+                  <div class="prev-line long" style="background:#38bdf8;"></div>
+                  <div class="prev-line short" style="background:#475569;"></div>
+                  <div class="prev-line med" style="background:#ec4899; margin-top:4px;"></div>
+                  <div class="prev-line long" style="background:#cbd5e1;"></div>
+                  <div class="prev-line med" style="background:#cbd5e1;"></div>
+                </div>
+                <span>Developer</span>
+              </div>
+              <div class="template-card" data-template="startup" onclick="selectTemplate('startup',this)">
+                <div class="template-preview startup-prev" style="background:#f8fafc; display:flex; flex-direction:column; gap:4px;">
+                  <div style="background:#ff4757; height:12px; width:100%; border-radius:3px 3px 0 0; display:flex; gap:4px; padding:2px 4px; align-items:center;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:white;"></div>
+                    <div class="prev-line med" style="background:rgba(255,255,255,0.8); margin:0;"></div>
+                  </div>
+                  <div style="display:flex; gap:4px; padding:0 4px; flex:1;">
+                    <div class="prev-main-col" style="flex:2;">
+                      <div class="prev-line long" style="background:#94a3b8;"></div>
+                      <div class="prev-line med" style="background:#cbd5e1;"></div>
+                      <div class="prev-line long" style="background:#cbd5e1;"></div>
+                    </div>
+                    <div class="prev-sidebar-col" style="flex:1; background:transparent;">
+                      <div class="prev-line short" style="background:#ff4757; width:100%; height:6px; border-radius:3px;"></div>
+                      <div class="prev-line short" style="background:#ff4757; width:80%; height:6px; border-radius:3px;"></div>
+                    </div>
+                  </div>
+                </div>
+                <span>Startup</span>
+              </div>
+              <div class="template-card" data-template="executive" onclick="selectTemplate('executive',this)">
+                <div class="template-preview executive-prev" style="background:#e2e8f0; display:flex;">
+                  <div style="width:30%; background:#1e293b; padding:4px; display:flex; flex-direction:column; gap:4px; align-items:center;">
+                    <div style="width:12px; height:12px; border-radius:50%; background:#334155;"></div>
+                    <div class="prev-line short" style="background:#cbd5e1; width:80%;"></div>
+                    <div class="prev-line short" style="background:#cbd5e1; width:80%;"></div>
+                  </div>
+                  <div style="width:70%; padding:4px;">
+                    <div class="prev-line med" style="background:#0f172a; height:6px;"></div>
+                    <div class="prev-line long" style="background:#1e293b; margin-top:8px;"></div>
+                    <div class="prev-line long" style="background:#94a3b8;"></div>
+                    <div class="prev-line long" style="background:#94a3b8;"></div>
+                  </div>
+                </div>
+                <span>Executive</span>
+              </div>
+              <div class="template-card" data-template="academic" onclick="selectTemplate('academic',this)">
+                <div class="template-preview academic-prev" style="background:#f8fafc; padding:4px; display:flex; flex-direction:column; align-items:center;">
+                  <div class="prev-line med" style="background:#111827; height:6px; width:50%; margin-bottom:2px;"></div>
+                  <div class="prev-line long" style="background:#d1d5db; width:80%; margin-bottom:6px;"></div>
+                  <div class="prev-line long" style="background:#4b5563; width:100%;"></div>
+                  <div class="prev-line long" style="background:#4b5563; width:100%;"></div>
+                  <div class="prev-line long" style="background:#d1d5db; width:100%; margin-top:4px;"></div>
+                  <div class="prev-line long" style="background:#4b5563; width:100%;"></div>
+                </div>
+                <span>Academic</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Photo Upload -->
+          <div class="photo-upload-wrap">
+            <div class="photo-preview" id="photoPreview">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div class="photo-upload-info">
+              <p class="photo-label">Profile Photo <span class="optional-tag">Optional</span></p>
+              <p class="photo-hint">JPG, PNG or WebP — max 5MB</p>
+              <label class="btn-upload-photo" for="photoInput">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload Photo
+              </label>
+              <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)">
+            </div>
+          </div>
+
+          <div class="fields-grid">
+            <div class="field-group full">
+              <label>Resume Name (for your reference) *</label>
+              <input type="text" name="resume_name" id="field-resume-name" placeholder="e.g. Software Engineer Resume" required>
+            </div>
+            <div class="field-group full">
+              <label>Full Name *</label>
+              <input type="text" name="name" id="field-name" placeholder="e.g. John Doe" required>
+            </div>
+            <div class="field-group">
+              <label>Email Address *</label>
+              <input type="email" name="email" id="field-email" placeholder="john@example.com" required>
+            </div>
+            <div class="field-group">
+              <label>Phone Number *</label>
+              <input type="text" name="phone" id="field-phone" placeholder="+1 (555) 000-0000" required>
+            </div>
+            <div class="field-group full">
+              <label>Location</label>
+              <input type="text" name="location" id="field-location" placeholder="City, Country">
+            </div>
+            <div class="field-group full">
+              <label>Professional Summary <span style="font-size: 11px; color: var(--dim); font-weight: normal; margin-left: 6px;">(Fill in Skills &amp; Experience first to generate with AI)</span></label>
+              <div class="ai-field-wrap">
+                <textarea name="summary" id="field-summary" placeholder="A brief summary about your professional background and goals..." rows="4"></textarea>
+                <button type="button" class="btn-ai" onclick="generateSummary()" id="aiBtn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  ✨ Generate with AI
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="section-nav-btns">
+            <div></div>
+            <button type="button" class="btn-next" onclick="goNext('academics')">Next: Academics →</button>
+          </div>
+        </section>
+
+        <!-- ===== ACADEMICS ===== -->
+        <section class="form-panel" id="section-academics">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+            <div><h2 class="section-title">Academics</h2><p class="section-subtitle">Your educational background and qualifications</p></div>
+          </div>
+          <div class="multi-entry" id="education-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Education #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group"><label>Degree / Qualification</label><input type="text" name="education[0][degree]" placeholder="B.Sc. Computer Science"></div>
+                <div class="field-group"><label>School / University</label><input type="text" name="education[0][school]" placeholder="MIT"></div>
+                <div class="field-group"><label>Location</label><input type="text" name="education[0][location]" placeholder="Cambridge, MA"></div>
+                <div class="field-group"><label>Grade / GPA</label><input type="text" name="education[0][grade]" placeholder="3.9 / 4.0"></div>
+                <div class="field-group"><label>Start Date</label><input type="text" name="education[0][start]" placeholder="Sep 2020"></div>
+                <div class="field-group"><label>End Date</label><input type="text" name="education[0][end]" placeholder="May 2024"></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addEducation()">+ Add Education</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('basic')">← Basic</button>
+            <button type="button" class="btn-next" onclick="goNext('work')">Next: Work Experience →</button>
+          </div>
+        </section>
+
+        <!-- ===== WORK EXPERIENCE ===== -->
+        <section class="form-panel" id="section-work">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+            <div><h2 class="section-title">Work Experience</h2><p class="section-subtitle">Your professional work history</p></div>
+          </div>
+          <div class="multi-entry" id="experience-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Experience #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group"><label>Job Title</label><input type="text" name="experience[0][title]" placeholder="Software Engineer"></div>
+                <div class="field-group"><label>Company</label><input type="text" name="experience[0][company]" placeholder="Google"></div>
+                <div class="field-group"><label>Location</label><input type="text" name="experience[0][location]" placeholder="Mountain View, CA"></div>
+                <div class="field-group"><label>Employment Type</label><input type="text" name="experience[0][type]" placeholder="Full-time / Internship"></div>
+                <div class="field-group"><label>Start Date</label><input type="text" name="experience[0][start]" placeholder="Jun 2022"></div>
+                <div class="field-group"><label>End Date</label><input type="text" name="experience[0][end]" placeholder="Present"></div>
+                <div class="field-group full"><label>Description</label><textarea name="experience[0][description]" placeholder="Describe your responsibilities and achievements..." rows="3"></textarea></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addExperience()">+ Add Experience</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('academics')">← Academics</button>
+            <button type="button" class="btn-next" onclick="goNext('projects')">Next: Projects →</button>
+          </div>
+        </section>
+
+        <!-- ===== PROJECTS ===== -->
+        <section class="form-panel" id="section-projects">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+            <div><h2 class="section-title">Projects</h2><p class="section-subtitle">Showcase your personal and professional projects</p></div>
+          </div>
+          <div class="multi-entry" id="project-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Project #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group"><label>Project Title</label><input type="text" name="projects[0][title]" placeholder="AI Resume Builder"></div>
+                <div class="field-group"><label>Technologies Used</label><input type="text" name="projects[0][tools]" placeholder="Python, React, MongoDB"></div>
+                <div class="field-group"><label>GitHub Link</label><input type="url" name="projects[0][link]" placeholder="https://github.com/..."></div>
+                <div class="field-group"><label>Live Demo</label><input type="url" name="projects[0][demo]" placeholder="https://myproject.com"></div>
+                <div class="field-group full"><label>Description</label><textarea name="projects[0][description]" placeholder="Describe what the project does and your role..." rows="3"></textarea></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addProject()">+ Add Project</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('work')">← Work Experience</button>
+            <button type="button" class="btn-next" onclick="goNext('skills')">Next: Skills →</button>
+          </div>
+        </section>
+
+        <!-- ===== SKILLS ===== -->
+        <section class="form-panel" id="section-skills">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+            <div><h2 class="section-title">Skills</h2><p class="section-subtitle">Technical and soft skills you possess</p></div>
+          </div>
+          <div class="fields-grid">
+            <div class="field-group full"><label>Technical Skills</label><input type="text" name="skills_technical" placeholder="Python, JavaScript, React, Node.js, Docker..."></div>
+            <div class="field-group full"><label>Soft Skills</label><input type="text" name="skills_soft" placeholder="Leadership, Communication, Problem Solving..."></div>
+            <div class="field-group full"><label>Tools & Platforms</label><input type="text" name="skills_tools" placeholder="Git, AWS, Figma, Jira..."></div>
+            <div class="field-group full"><label>All Skills (comma-separated for resume tags)</label><textarea name="skills" placeholder="Python, HTML, CSS, React, Machine Learning..." rows="3"></textarea></div>
+          </div>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('projects')">← Projects</button>
+            <button type="button" class="btn-next" onclick="goNext('languages')">Next: Languages →</button>
+          </div>
+        </section>
+
+        <!-- ===== LANGUAGES ===== -->
+        <section class="form-panel" id="section-languages">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg></div>
+            <div><h2 class="section-title">Languages</h2><p class="section-subtitle">Languages you can speak or write</p></div>
+          </div>
+          <div class="multi-entry" id="languages-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Language #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group"><label>Language</label><input type="text" name="languages[0][name]" placeholder="English"></div>
+                <div class="field-group"><label>Proficiency</label>
+                  <select name="languages[0][level]" class="styled-select">
+                    <option value="">Select level</option>
+                    <option>Native</option><option>Fluent</option><option>Advanced</option><option>Intermediate</option><option>Beginner</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addLanguage()">+ Add Language</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('skills')">← Skills</button>
+            <button type="button" class="btn-next" onclick="goNext('social')">Next: Social Media →</button>
+          </div>
+        </section>
+
+        <!-- ===== SOCIAL MEDIA ===== -->
+        <section class="form-panel" id="section-social">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+            <div><h2 class="section-title">Social Media</h2><p class="section-subtitle">Your online presence and profiles</p></div>
+          </div>
+          <div class="fields-grid">
+            <div class="field-group"><label>LinkedIn</label><input type="text" name="linkedin" placeholder="linkedin.com/in/username"></div>
+            <div class="field-group"><label>GitHub</label><input type="text" name="github" placeholder="github.com/username"></div>
+            <div class="field-group"><label>Portfolio / Website</label><input type="url" name="website" placeholder="https://myportfolio.com"></div>
+            <div class="field-group"><label>Twitter / X</label><input type="text" name="twitter" placeholder="twitter.com/username"></div>
+            <div class="field-group"><label>Behance</label><input type="text" name="behance" placeholder="behance.net/username"></div>
+            <div class="field-group"><label>Dribbble</label><input type="text" name="dribbble" placeholder="dribbble.com/username"></div>
+          </div>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('languages')">← Languages</button>
+            <button type="button" class="btn-next" onclick="goNext('awards')">Next: Awards →</button>
+          </div>
+        </section>
+
+        <!-- ===== AWARDS ===== -->
+        <section class="form-panel" id="section-awards">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div>
+            <div><h2 class="section-title">Awards</h2><p class="section-subtitle">Recognitions and honors you have received</p></div>
+          </div>
+          <div class="multi-entry" id="awards-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Award #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group"><label>Award Title</label><input type="text" name="awards[0][title]" placeholder="Best Research Paper Award"></div>
+                <div class="field-group"><label>Issuing Organization</label><input type="text" name="awards[0][org]" placeholder="IEEE"></div>
+                <div class="field-group"><label>Date</label><input type="text" name="awards[0][date]" placeholder="March 2023"></div>
+                <div class="field-group full"><label>Description</label><textarea name="awards[0][description]" placeholder="Brief description..." rows="2"></textarea></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addAward()">+ Add Award</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('social')">← Social Media</button>
+            <button type="button" class="btn-next" onclick="goNext('certifications')">Next: Certifications →</button>
+          </div>
+        </section>
+
+        <!-- ===== CERTIFICATIONS ===== -->
+        <section class="form-panel" id="section-certifications">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+            <div><h2 class="section-title">Certifications</h2><p class="section-subtitle">Professional certificates and courses</p></div>
+          </div>
+          <div class="multi-entry" id="certifications-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Certification #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group"><label>Certificate Name</label><input type="text" name="certifications[0][name]" placeholder="AWS Solutions Architect"></div>
+                <div class="field-group"><label>Issuing Organization</label><input type="text" name="certifications[0][org]" placeholder="Amazon Web Services"></div>
+                <div class="field-group"><label>Issue Date</label><input type="text" name="certifications[0][date]" placeholder="Jan 2023"></div>
+                <div class="field-group"><label>Credential ID / URL</label><input type="text" name="certifications[0][id]" placeholder="Credential ID or link"></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addCertification()">+ Add Certification</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('awards')">← Awards</button>
+            <button type="button" class="btn-next" onclick="goNext('publications')">Next: Publications →</button>
+          </div>
+        </section>
+
+        <!-- ===== PUBLICATIONS ===== -->
+        <section class="form-panel" id="section-publications">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+            <div><h2 class="section-title">Publications</h2><p class="section-subtitle">Research papers, articles, and books</p></div>
+          </div>
+          <div class="multi-entry" id="publications-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Publication #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group full"><label>Title</label><input type="text" name="publications[0][title]" placeholder="Title of the paper/article"></div>
+                <div class="field-group"><label>Publisher / Journal</label><input type="text" name="publications[0][publisher]" placeholder="Nature, IEEE, etc."></div>
+                <div class="field-group"><label>Date</label><input type="text" name="publications[0][date]" placeholder="April 2024"></div>
+                <div class="field-group full"><label>URL / DOI</label><input type="text" name="publications[0][url]" placeholder="https://doi.org/..."></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addPublication()">+ Add Publication</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('certifications')">← Certifications</button>
+            <button type="button" class="btn-next" onclick="goNext('volunteering')">Next: Volunteering →</button>
+          </div>
+        </section>
+
+        <!-- ===== VOLUNTEERING ===== -->
+        <section class="form-panel" id="section-volunteering">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+            <div><h2 class="section-title">Volunteering</h2><p class="section-subtitle">Community service and volunteer work</p></div>
+          </div>
+          <div class="multi-entry" id="volunteering-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Volunteering #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group"><label>Role</label><input type="text" name="volunteering[0][role]" placeholder="Mentor / Organizer"></div>
+                <div class="field-group"><label>Organization</label><input type="text" name="volunteering[0][org]" placeholder="Red Cross"></div>
+                <div class="field-group"><label>Start Date</label><input type="text" name="volunteering[0][start]" placeholder="Jan 2022"></div>
+                <div class="field-group"><label>End Date</label><input type="text" name="volunteering[0][end]" placeholder="Present"></div>
+                <div class="field-group full"><label>Description</label><textarea name="volunteering[0][description]" placeholder="What did you do?" rows="2"></textarea></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addVolunteering()">+ Add Volunteering</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('publications')">← Publications</button>
+            <button type="button" class="btn-next" onclick="goNext('competitions')">Next: Competitions →</button>
+          </div>
+        </section>
+
+        <!-- ===== COMPETITIONS ===== -->
+        <section class="form-panel" id="section-competitions">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="8 6 2 12 8 18"/><polyline points="16 6 22 12 16 18"/></svg></div>
+            <div><h2 class="section-title">Competitions</h2><p class="section-subtitle">Hackathons, olympiads, and contests</p></div>
+          </div>
+          <div class="multi-entry" id="competitions-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Competition #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group"><label>Competition Name</label><input type="text" name="competitions[0][name]" placeholder="HackMIT 2024"></div>
+                <div class="field-group"><label>Position / Rank</label><input type="text" name="competitions[0][position]" placeholder="1st Place / Finalist"></div>
+                <div class="field-group"><label>Organizer</label><input type="text" name="competitions[0][organizer]" placeholder="MIT"></div>
+                <div class="field-group"><label>Date</label><input type="text" name="competitions[0][date]" placeholder="Oct 2024"></div>
+                <div class="field-group full"><label>Description</label><textarea name="competitions[0][description]" placeholder="What did you build or achieve?" rows="2"></textarea></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addCompetition()">+ Add Competition</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('volunteering')">← Volunteering</button>
+            <button type="button" class="btn-next" onclick="goNext('conferences')">Next: Conferences →</button>
+          </div>
+        </section>
+
+        <!-- ===== CONFERENCES ===== -->
+        <section class="form-panel" id="section-conferences">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+            <div><h2 class="section-title">Conferences & Workshops</h2><p class="section-subtitle">Conferences attended or presented at</p></div>
+          </div>
+          <div class="multi-entry" id="conferences-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Conference #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group"><label>Conference / Workshop Name</label><input type="text" name="conferences[0][name]" placeholder="NeurIPS 2024"></div>
+                <div class="field-group"><label>Role</label><input type="text" name="conferences[0][role]" placeholder="Speaker / Attendee / Presenter"></div>
+                <div class="field-group"><label>Location</label><input type="text" name="conferences[0][location]" placeholder="Vancouver, Canada"></div>
+                <div class="field-group"><label>Date</label><input type="text" name="conferences[0][date]" placeholder="Dec 2024"></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addConference()">+ Add Conference</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('competitions')">← Competitions</button>
+            <button type="button" class="btn-next" onclick="goNext('testscores')">Next: Test Scores →</button>
+          </div>
+        </section>
+
+        <!-- ===== TEST SCORES ===== -->
+        <section class="form-panel" id="section-testscores">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <div><h2 class="section-title">Test Scores</h2><p class="section-subtitle">Standardized test scores and results</p></div>
+          </div>
+          <div class="multi-entry" id="testscores-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Test Score #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group"><label>Test Name</label><input type="text" name="testscores[0][name]" placeholder="GRE / GMAT / IELTS / SAT"></div>
+                <div class="field-group"><label>Score</label><input type="text" name="testscores[0][score]" placeholder="330 / 340"></div>
+                <div class="field-group"><label>Date</label><input type="text" name="testscores[0][date]" placeholder="Aug 2023"></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addTestScore()">+ Add Test Score</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('conferences')">← Conferences</button>
+            <button type="button" class="btn-next" onclick="goNext('patents')">Next: Patents →</button>
+          </div>
+        </section>
+
+        <!-- ===== PATENTS ===== -->
+        <section class="form-panel" id="section-patents">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div><h2 class="section-title">Patents</h2><p class="section-subtitle">Intellectual property and inventions</p></div>
+          </div>
+          <div class="multi-entry" id="patents-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Patent #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group full"><label>Patent Title</label><input type="text" name="patents[0][title]" placeholder="Method for Efficient Data Compression"></div>
+                <div class="field-group"><label>Patent Number</label><input type="text" name="patents[0][number]" placeholder="US12345678"></div>
+                <div class="field-group"><label>Date Filed / Granted</label><input type="text" name="patents[0][date]" placeholder="Jan 2023"></div>
+                <div class="field-group full"><label>Description</label><textarea name="patents[0][description]" placeholder="Brief description of the invention..." rows="2"></textarea></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addPatent()">+ Add Patent</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('testscores')">← Test Scores</button>
+            <button type="button" class="btn-next" onclick="goNext('scholarships')">Next: Scholarships →</button>
+          </div>
+        </section>
+
+        <!-- ===== SCHOLARSHIPS ===== -->
+        <section class="form-panel" id="section-scholarships">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <div><h2 class="section-title">Scholarships</h2><p class="section-subtitle">Grants and financial awards received</p></div>
+          </div>
+          <div class="multi-entry" id="scholarships-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Scholarship #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group"><label>Scholarship Name</label><input type="text" name="scholarships[0][name]" placeholder="Merit Excellence Award"></div>
+                <div class="field-group"><label>Awarded By</label><input type="text" name="scholarships[0][org]" placeholder="University / Foundation"></div>
+                <div class="field-group"><label>Amount</label><input type="text" name="scholarships[0][amount]" placeholder="$5,000"></div>
+                <div class="field-group"><label>Year</label><input type="text" name="scholarships[0][date]" placeholder="2023"></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addScholarship()">+ Add Scholarship</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('patents')">← Patents</button>
+            <button type="button" class="btn-next" onclick="goNext('extracurricular')">Next: Extra Curricular →</button>
+          </div>
+        </section>
+
+        <!-- ===== EXTRA CURRICULAR ===== -->
+        <section class="form-panel" id="section-extracurricular">
+          <div class="section-header">
+            <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h6l2 5v3h-8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+            <div><h2 class="section-title">Extra Curricular Activities</h2><p class="section-subtitle">Clubs, sports, hobbies, and other activities</p></div>
+          </div>
+          <div class="multi-entry" id="extracurricular-section">
+            <div class="dynamic-entry">
+              <div class="entry-header"><span class="entry-label">Activity #1</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div>
+              <div class="fields-grid">
+                <div class="field-group"><label>Activity / Club</label><input type="text" name="extracurricular[0][name]" placeholder="Chess Club / Basketball Team"></div>
+                <div class="field-group"><label>Role</label><input type="text" name="extracurricular[0][role]" placeholder="Captain / Member / President"></div>
+                <div class="field-group"><label>Organization</label><input type="text" name="extracurricular[0][org]" placeholder="MIT / Local Community"></div>
+                <div class="field-group"><label>Duration</label><input type="text" name="extracurricular[0][duration]" placeholder="2021 – 2024"></div>
+                <div class="field-group full"><label>Description</label><textarea name="extracurricular[0][description]" placeholder="What did you do and achieve?" rows="2"></textarea></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addExtracurricular()">+ Add Activity</button>
+          <div class="section-nav-btns">
+            <button type="button" class="btn-prev" onclick="goNext('scholarships')">← Scholarships</button>
+            <div></div>
+          </div>
+        </section>
+
+        <!-- Custom sections injected dynamically -->
+        <div id="custom-sections-container"></div>
+
+
+
+      </form>
+    </main>
+  </div>
+
+  <!-- ATS Score Modal -->
+  <div class="modal-overlay" id="atsModal" onclick="closeATSIfOutside(event)">
+    <div class="modal-box" id="atsBox">
+      <div class="modal-header">
+        <h3>ATS Score Checker</h3>
+        <button class="modal-close" onclick="closeATS()">✕</button>
+      </div>
+      <div class="modal-body" id="atsContent">
+        <div class="ats-loading">
+          <div class="spinner"></div>
+          <p>Analysing your resume…</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Section Modal -->
+  <div class="modal-overlay" id="customModal" onclick="closeCustomIfOutside(event)">
+    <div class="modal-box small-modal" id="customBox">
+      <div class="modal-header">
+        <h3>Add Custom Section</h3>
+        <button class="modal-close" onclick="closeCustomModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field-group" style="margin-bottom:16px">
+          <label>Section Title</label>
+          <input type="text" id="customSectionTitle" placeholder="e.g. Hobbies, References, Achievements...">
+        </div>
+        <button class="btn-primary" style="width:100%" onclick="confirmCustomSection()">Add Section</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─── Section Navigation ───────────────────────────────────────────────────
+    const sectionOrder = [
+      'basic','academics','work','projects','skills','languages',
+      'social','awards','certifications','publications','volunteering',
+      'competitions','conferences','testscores','patents','scholarships','extracurricular'
+    ];
+    const filledSections = new Set();
+    let customSectionCount = 0;
+
+    function showSection(id, navEl) {
+      document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const panel = document.getElementById('section-' + id);
+      if (panel) panel.classList.add('active');
+      if (navEl) navEl.classList.add('active');
+      else { const btn = document.getElementById('nav-' + id); if (btn) btn.classList.add('active'); }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goNext(id) {
+      const current = document.querySelector('.form-panel.active');
+      if (current) {
+        const sid = current.id.replace('section-', '');
+        filledSections.add(sid);
+        updateProgress();
+        const btn = document.getElementById('nav-' + sid);
+        if (btn) btn.classList.add('filled');
+      }
+      showSection(id, null);
+    }
+
+    function updateProgress() {
+      const total = sectionOrder.length + customSectionCount;
+      const pct = Math.round((filledSections.size / total) * 100);
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressText').textContent = pct + '%';
+    }
+
+    // ─── Template Picker ──────────────────────────────────────────────────────
+    function selectTemplate(name, el) {
+      document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('selectedTemplate').value = name;
+    }
+
+    // ─── Photo Upload ─────────────────────────────────────────────────────────
+    function handlePhotoUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const preview = document.getElementById('photoPreview');
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.innerHTML = `<img src="${e.target.result}" alt="Profile photo">`;
+      };
+      reader.readAsDataURL(file);
+
+      const fd = new FormData();
+      fd.append('photo', file);
+      fetch('/upload-photo', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(d => {
+          if (d.status === 'ok') {
+            document.getElementById('photoUrlField').value = d.url;
+            showToast('Photo uploaded!', 'success');
+          } else {
+            showToast('Upload failed: ' + d.message, 'error');
+          }
+        })
+        .catch(() => showToast('Upload error', 'error'));
+    }
+
+    // ─── AI Summary ───────────────────────────────────────────────────────────
+    async function generateSummary() {
+      const btn = document.getElementById('aiBtn');
+      const textarea = document.getElementById('field-summary');
+
+      const payload = {
+        name:       document.getElementById('field-name')?.value || '',
+        role:       document.querySelector('[name="experience[0][title]"]')?.value || '',
+        skills:     document.querySelector('[name="skills"]')?.value || '',
+        experience: document.querySelector('[name="experience[0][description]"]')?.value || '',
+      };
+
+      if (!payload.skills.trim() && !payload.experience.trim()) {
+        showToast('Please fill in your Skills or Experience first to generate a tailored summary.', 'error');
+        return;
+      }
+
+      btn.textContent = '⏳ Generating...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/ai-summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+          textarea.value = data.summary;
+          textarea.style.borderColor = '#10b981';
+          setTimeout(() => textarea.style.borderColor = '', 2000);
+          showToast('Summary generated!', 'success');
+        } else {
+          showToast('AI Error: ' + (data.message || 'Unknown error'), 'error');
+        }
+      } catch (e) {
+        showToast('Network error', 'error');
+      } finally {
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> ✨ Generate with AI';
+        btn.disabled = false;
+      }
+    }
+
+    // ─── ATS Score ────────────────────────────────────────────────────────────
+    function openATS() {
+      document.getElementById('atsModal').classList.add('open');
+      document.getElementById('atsContent').innerHTML = `
+        <div class="ats-form" style="display: flex; flex-direction: column; gap: 12px;">
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 4px; line-height: 1.4;">
+            Paste the target Job Description below. We'll use Gemini to analyze how well your resume matches the job requirements.
+          </p>
+          <textarea id="ats-job-desc" placeholder="Paste the Job Description (responsibilities, skills, qualifications) here..." rows="8" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--glass-border); background: var(--input-bg); color: var(--text); outline: none; font-size: 13px; resize: vertical; font-family:'Inter',sans-serif; line-height: 1.5;"></textarea>
+          <button type="button" class="btn-primary" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; font-weight:600; border:none; cursor:pointer;" onclick="runATSAnalysis()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Analyze Resume Match
+          </button>
+        </div>
+      `;
+    }
+
+    async function runATSAnalysis() {
+      const jd = document.getElementById('ats-job-desc')?.value || '';
+      if (!jd.trim()) {
+        showToast('Please paste a Job Description first.', 'error');
+        return;
+      }
+
+      document.getElementById('atsContent').innerHTML = `
+        <div class="ats-loading" style="padding: 30px 0; display:flex; flex-direction:column; align-items:center; gap:14px;">
+          <div class="spinner"></div>
+          <p style="font-weight: 500;">Analyzing your resume match with Gemini...</p>
+        </div>
+      `;
+
+      // Gather all experience descriptions
+      const expElements = Array.from(document.querySelectorAll('[name^="experience["][name$="][description]"]'));
+      const expText = expElements.map(el => el.value).filter(val => val.trim() !== '').join('\n');
+
+      // Gather all education degrees
+      const eduElements = Array.from(document.querySelectorAll('[name^="education["][name$="][degree]"]'));
+      const eduText = eduElements.map(el => el.value).filter(val => val.trim() !== '').join('\n');
+
+      const payload = {
+        job_description: jd,
+        name:       document.getElementById('field-name')?.value || '',
+        summary:    document.getElementById('field-summary')?.value || '',
+        skills:     document.querySelector('[name="skills"]')?.value || '',
+        experience: expText,
+        education:  eduText
+      };
+
+      try {
+        const res = await fetch('/ats-score', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+          renderATSResult(data);
+        } else {
+          document.getElementById('atsContent').innerHTML = `
+            <p style="color:#f87171; margin-bottom: 15px;">Error: ${data.message}</p>
+            <button class="btn-primary" onclick="openATS()" style="width:100%">Try Again</button>
+          `;
+        }
+      } catch (e) {
+        document.getElementById('atsContent').innerHTML = `
+          <p style="color:#f87171; margin-bottom: 15px;">Network error occurred</p>
+          <button class="btn-primary" onclick="openATS()" style="width:100%">Try Again</button>
+        `;
+      }
+    }
+
+    function renderATSResult(d) {
+      let foundHtml = '';
+      let missingHtml = '';
+
+      if (Array.isArray(d.found) && d.found.length) {
+        foundHtml = `<div class="ats-tags found">${d.found.map(k=>`<span>${k}</span>`).join('')}</div>`;
+      }
+      
+      if (Array.isArray(d.missing) && d.missing.length) {
+        missingHtml = `<div class="ats-tags missing">${d.missing.map(k=>`<span>${k}</span>`).join('')}</div>`;
+      }
+
+      let feedbackHtml = d.feedback ? `<p class="ats-feedback" style="margin-top: 15px; font-size: 13px; color: var(--muted); line-height: 1.5; padding: 10px; background: rgba(0,0,0,0.02); border-radius: 8px; border: 1px solid var(--border);">${d.feedback}</p>` : '';
+
+      document.getElementById('atsContent').innerHTML = `
+        <div class="ats-score-ring">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="${d.color}" stroke-width="10"
+              stroke-dasharray="${d.score * 3.14} 314" stroke-dashoffset="78.5"
+              stroke-linecap="round" style="transition:stroke-dasharray 1s ease"/>
+          </svg>
+          <div class="ats-score-inner">
+            <span class="ats-number">${d.score}</span>
+            <span class="ats-label">/ 100</span>
+          </div>
+        </div>
+        <div class="ats-grade" style="color:${d.color}">${d.grade}</div>
+        ${feedbackHtml}
+        ${foundHtml ? `<h4 class="ats-section-title" style="margin-top:20px;">✓ Matched Keywords / Skills</h4>${foundHtml}` : ''}
+        ${missingHtml ? `<h4 class="ats-section-title" style="margin-top:20px;">✗ Missing Requirements / Skills</h4>${missingHtml}` : ''}
+        <button class="btn-primary" onclick="openATS()" style="width:100%; margin-top:20px; border:none; padding:10px; cursor:pointer;">Check Another Job Description</button>
+      `;
+    }
+
+    function closeATS() { document.getElementById('atsModal').classList.remove('open'); }
+    function closeATSIfOutside(e) { if (e.target === document.getElementById('atsModal')) closeATS(); }
+
+    // ─── Custom Sections ──────────────────────────────────────────────────────
+    function addCustomSection() { document.getElementById('customModal').classList.add('open'); setTimeout(() => document.getElementById('customSectionTitle').focus(), 100); }
+    function closeCustomModal() { document.getElementById('customModal').classList.remove('open'); document.getElementById('customSectionTitle').value = ''; }
+    function closeCustomIfOutside(e) { if (e.target === document.getElementById('customModal')) closeCustomModal(); }
+
+    function confirmCustomSection() {
+      const title = document.getElementById('customSectionTitle').value.trim();
+      if (!title) return;
+      const id = 'custom-' + customSectionCount;
+
+      // Add nav item
+      const navItem = document.createElement('button');
+      navItem.className = 'nav-item';
+      navItem.id = 'nav-' + id;
+      navItem.onclick = function() { showSection(id, this); };
+      navItem.innerHTML = `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg><span>${title}</span><div class="nav-dot"></div>`;
+      document.getElementById('custom-nav-items').appendChild(navItem);
+
+      // Add panel
+      const panel = document.createElement('section');
+      panel.className = 'form-panel';
+      panel.id = 'section-' + id;
+      panel.innerHTML = `
+        <div class="section-header">
+          <div class="section-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+          <div><h2 class="section-title">${title}</h2><p class="section-subtitle">Custom section</p></div>
+        </div>
+        <div class="fields-grid">
+          <div class="field-group full">
+            <label>Content</label>
+            <textarea name="custom_section[${customSectionCount}][content]" placeholder="Write your content here..." rows="6"></textarea>
+            <input type="hidden" name="custom_section[${customSectionCount}][title]" value="${title}">
+          </div>
+        </div>
+        <div class="section-nav-btns">
+          <button type="button" class="btn-prev" onclick="history.back()">← Back</button>
+          <div></div>
+        </div>
+      `;
+      document.getElementById('custom-sections-container').appendChild(panel);
+
+      customSectionCount++;
+      sectionOrder.push(id);
+      closeCustomModal();
+      showSection(id, navItem);
+      injectSaveButtons();
+      showToast(`"${title}" section added!`, 'success');
+    }
+
+    // ─── Auto-save ────────────────────────────────────────────────────────────
+    let saveTimer = null;
+    const saveBadge = document.getElementById('saveBadge');
+    const saveText = document.getElementById('saveText');
+
+    function triggerAutoSave() {
+      saveBadge.className = 'save-badge saving';
+      saveText.textContent = 'Saving…';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(doAutoSave, 1500);
+    }
+
+    async function doAutoSave() {
+      const fd = new FormData(document.getElementById('resumeForm'));
+      const obj = {};
+      fd.forEach((v, k) => { obj[k] = v; });
+      try {
+        await fetch('/autosave', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(obj)
+        });
+        saveBadge.className = 'save-badge saved';
+        saveText.textContent = 'Saved ✓';
+        setTimeout(() => { saveBadge.className = 'save-badge'; saveText.textContent = 'Unsaved'; }, 3000);
+      } catch { saveBadge.className = 'save-badge'; saveText.textContent = 'Save failed'; }
+    }
+
+    document.getElementById('resumeForm').addEventListener('input', triggerAutoSave);
+
+    // ─── Remove Entry ─────────────────────────────────────────────────────────
+    function removeEntry(btn) {
+      const entry = btn.closest('.dynamic-entry');
+      if (entry.parentElement.querySelectorAll('.dynamic-entry').length > 1) {
+        entry.style.animation = 'fadeOut 0.3s ease forwards';
+        setTimeout(() => entry.remove(), 280);
+      }
+    }
+
+    // ─── Toast ────────────────────────────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+      const t = document.createElement('div');
+      t.className = `toast toast-${type}`;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('show'));
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3000);
+    }
+
+    // ─── Dynamic Adders ───────────────────────────────────────────────────────
+    let eduCount=1, expCount=1, projCount=1, langCount=1, awardCount=1, certCount=1;
+    let pubCount=1, volCount=1, compCount=1, confCount=1, tsCount=1, patCount=1, scholCount=1, extraCount=1;
+
+    function addEntry(sectionId, label, fieldsHtml) {
+      const section = document.getElementById(sectionId);
+      const div = document.createElement('div');
+      div.className = 'dynamic-entry animate-in';
+      div.innerHTML = `<div class="entry-header"><span class="entry-label">${label}</span><button type="button" class="btn-remove" onclick="removeEntry(this)">✕</button></div><div class="fields-grid">${fieldsHtml}</div>`;
+      section.appendChild(div);
+      div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function addEducation() { addEntry('education-section', `Education #${++eduCount}`, `<div class="field-group"><label>Degree</label><input type="text" name="education[${eduCount-1}][degree]" placeholder="B.Sc. Computer Science"></div><div class="field-group"><label>School</label><input type="text" name="education[${eduCount-1}][school]" placeholder="MIT"></div><div class="field-group"><label>Location</label><input type="text" name="education[${eduCount-1}][location]" placeholder="Cambridge, MA"></div><div class="field-group"><label>Grade</label><input type="text" name="education[${eduCount-1}][grade]" placeholder="3.9/4.0"></div><div class="field-group"><label>Start</label><input type="text" name="education[${eduCount-1}][start]" placeholder="Sep 2020"></div><div class="field-group"><label>End</label><input type="text" name="education[${eduCount-1}][end]" placeholder="May 2024"></div>`); }
+    function addExperience() { addEntry('experience-section', `Experience #${++expCount}`, `<div class="field-group"><label>Job Title</label><input type="text" name="experience[${expCount-1}][title]" placeholder="Engineer"></div><div class="field-group"><label>Company</label><input type="text" name="experience[${expCount-1}][company]" placeholder="Google"></div><div class="field-group"><label>Location</label><input type="text" name="experience[${expCount-1}][location]" placeholder="CA"></div><div class="field-group"><label>Type</label><input type="text" name="experience[${expCount-1}][type]" placeholder="Full-time"></div><div class="field-group"><label>Start</label><input type="text" name="experience[${expCount-1}][start]" placeholder="Jun 2022"></div><div class="field-group"><label>End</label><input type="text" name="experience[${expCount-1}][end]" placeholder="Present"></div><div class="field-group full"><label>Description</label><textarea name="experience[${expCount-1}][description]" rows="3"></textarea></div>`); }
+    function addProject() { addEntry('project-section', `Project #${++projCount}`, `<div class="field-group"><label>Title</label><input type="text" name="projects[${projCount-1}][title]" placeholder="My Project"></div><div class="field-group"><label>Tools</label><input type="text" name="projects[${projCount-1}][tools]" placeholder="React, Python"></div><div class="field-group"><label>GitHub</label><input type="url" name="projects[${projCount-1}][link]" placeholder="https://github.com/..."></div><div class="field-group"><label>Demo</label><input type="url" name="projects[${projCount-1}][demo]" placeholder="https://..."></div><div class="field-group full"><label>Description</label><textarea name="projects[${projCount-1}][description]" rows="3"></textarea></div>`); }
+    function addLanguage() { addEntry('languages-section', `Language #${++langCount}`, `<div class="field-group"><label>Language</label><input type="text" name="languages[${langCount-1}][name]" placeholder="Spanish"></div><div class="field-group"><label>Level</label><select name="languages[${langCount-1}][level]" class="styled-select"><option value="">Select</option><option>Native</option><option>Fluent</option><option>Advanced</option><option>Intermediate</option><option>Beginner</option></select></div>`); }
+    function addAward() { addEntry('awards-section', `Award #${++awardCount}`, `<div class="field-group"><label>Title</label><input type="text" name="awards[${awardCount-1}][title]" placeholder="Best Paper"></div><div class="field-group"><label>Org</label><input type="text" name="awards[${awardCount-1}][org]" placeholder="IEEE"></div><div class="field-group"><label>Date</label><input type="text" name="awards[${awardCount-1}][date]" placeholder="2023"></div><div class="field-group full"><label>Description</label><textarea name="awards[${awardCount-1}][description]" rows="2"></textarea></div>`); }
+    function addCertification() { addEntry('certifications-section', `Cert #${++certCount}`, `<div class="field-group"><label>Name</label><input type="text" name="certifications[${certCount-1}][name]" placeholder="AWS SA"></div><div class="field-group"><label>Org</label><input type="text" name="certifications[${certCount-1}][org]" placeholder="AWS"></div><div class="field-group"><label>Date</label><input type="text" name="certifications[${certCount-1}][date]" placeholder="Jan 2023"></div><div class="field-group"><label>ID</label><input type="text" name="certifications[${certCount-1}][id]" placeholder="ID or URL"></div>`); }
+    function addPublication() { addEntry('publications-section', `Publication #${++pubCount}`, `<div class="field-group full"><label>Title</label><input type="text" name="publications[${pubCount-1}][title]" placeholder="Title"></div><div class="field-group"><label>Publisher</label><input type="text" name="publications[${pubCount-1}][publisher]" placeholder="Nature"></div><div class="field-group"><label>Date</label><input type="text" name="publications[${pubCount-1}][date]" placeholder="2024"></div><div class="field-group full"><label>URL</label><input type="text" name="publications[${pubCount-1}][url]" placeholder="https://doi.org/..."></div>`); }
+    function addVolunteering() { addEntry('volunteering-section', `Volunteering #${++volCount}`, `<div class="field-group"><label>Role</label><input type="text" name="volunteering[${volCount-1}][role]" placeholder="Mentor"></div><div class="field-group"><label>Org</label><input type="text" name="volunteering[${volCount-1}][org]" placeholder="Red Cross"></div><div class="field-group"><label>Start</label><input type="text" name="volunteering[${volCount-1}][start]" placeholder="Jan 2022"></div><div class="field-group"><label>End</label><input type="text" name="volunteering[${volCount-1}][end]" placeholder="Present"></div><div class="field-group full"><label>Description</label><textarea name="volunteering[${volCount-1}][description]" rows="2"></textarea></div>`); }
+    function addCompetition() { addEntry('competitions-section', `Competition #${++compCount}`, `<div class="field-group"><label>Name</label><input type="text" name="competitions[${compCount-1}][name]" placeholder="HackMIT"></div><div class="field-group"><label>Position</label><input type="text" name="competitions[${compCount-1}][position]" placeholder="1st Place"></div><div class="field-group"><label>Organizer</label><input type="text" name="competitions[${compCount-1}][organizer]" placeholder="MIT"></div><div class="field-group"><label>Date</label><input type="text" name="competitions[${compCount-1}][date]" placeholder="Oct 2024"></div><div class="field-group full"><label>Description</label><textarea name="competitions[${compCount-1}][description]" rows="2"></textarea></div>`); }
+    function addConference() { addEntry('conferences-section', `Conference #${++confCount}`, `<div class="field-group"><label>Name</label><input type="text" name="conferences[${confCount-1}][name]" placeholder="NeurIPS"></div><div class="field-group"><label>Role</label><input type="text" name="conferences[${confCount-1}][role]" placeholder="Speaker"></div><div class="field-group"><label>Location</label><input type="text" name="conferences[${confCount-1}][location]" placeholder="Vancouver"></div><div class="field-group"><label>Date</label><input type="text" name="conferences[${confCount-1}][date]" placeholder="Dec 2024"></div>`); }
+    function addTestScore() { addEntry('testscores-section', `Test #${++tsCount}`, `<div class="field-group"><label>Test</label><input type="text" name="testscores[${tsCount-1}][name]" placeholder="GRE"></div><div class="field-group"><label>Score</label><input type="text" name="testscores[${tsCount-1}][score]" placeholder="330"></div><div class="field-group"><label>Date</label><input type="text" name="testscores[${tsCount-1}][date]" placeholder="Aug 2023"></div>`); }
+    function addPatent() { addEntry('patents-section', `Patent #${++patCount}`, `<div class="field-group full"><label>Title</label><input type="text" name="patents[${patCount-1}][title]" placeholder="Patent Title"></div><div class="field-group"><label>Number</label><input type="text" name="patents[${patCount-1}][number]" placeholder="US12345"></div><div class="field-group"><label>Date</label><input type="text" name="patents[${patCount-1}][date]" placeholder="2023"></div><div class="field-group full"><label>Description</label><textarea name="patents[${patCount-1}][description]" rows="2"></textarea></div>`); }
+    function addScholarship() { addEntry('scholarships-section', `Scholarship #${++scholCount}`, `<div class="field-group"><label>Name</label><input type="text" name="scholarships[${scholCount-1}][name]" placeholder="Merit Award"></div><div class="field-group"><label>Org</label><input type="text" name="scholarships[${scholCount-1}][org]" placeholder="Foundation"></div><div class="field-group"><label>Amount</label><input type="text" name="scholarships[${scholCount-1}][amount]" placeholder="$5,000"></div><div class="field-group"><label>Year</label><input type="text" name="scholarships[${scholCount-1}][date]" placeholder="2023"></div>`); }
+    function addExtracurricular() { addEntry('extracurricular-section', `Activity #${++extraCount}`, `<div class="field-group"><label>Activity</label><input type="text" name="extracurricular[${extraCount-1}][name]" placeholder="Chess Club"></div><div class="field-group"><label>Role</label><input type="text" name="extracurricular[${extraCount-1}][role]" placeholder="Captain"></div><div class="field-group"><label>Org</label><input type="text" name="extracurricular[${extraCount-1}][org]" placeholder="MIT"></div><div class="field-group"><label>Duration</label><input type="text" name="extracurricular[${extraCount-1}][duration]" placeholder="2021–2024"></div><div class="field-group full"><label>Description</label><textarea name="extracurricular[${extraCount-1}][description]" rows="2"></textarea></div>`); }
+
+    // Animations
+    const style = document.createElement('style');
+    style.textContent = `@keyframes fadeOut { 0%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(0.95)} }`;
+    document.head.appendChild(style);
+
+    // ─── Prefill Form from Draft (Edit Mode) ──────────────────────────────────
+    {% if draft and draft.data %}
+      const draftData = {{ draft.data | tojson | safe }};
+      
+      // Handle simple fields (top level)
+      const simpleFields = ['resume_id', 'resume_name', 'name', 'email', 'phone', 'location', 'summary', 'website', 'github', 'linkedin', 'twitter', 'behance', 'dribbble', 'skills_technical', 'skills_soft', 'skills_tools', 'template', 'photo_url'];
+      simpleFields.forEach(field => {
+         const val = draftData[field];
+         if (val !== undefined) {
+             const el = document.querySelector(`[name="${field}"]`);
+             if (el) el.value = Array.isArray(val) ? val[0] : val;
+             if (field === 'template') {
+                 const tmplName = Array.isArray(val) ? val[0] : val;
+                 const card = document.querySelector(`.template-card[data-template="${tmplName}"]`);
+                 if (card) selectTemplate(tmplName, card);
+             }
+             if (field === 'photo_url' && val) {
+                 const url = Array.isArray(val) ? val[0] : val;
+                 if (url) document.getElementById('photoPreview').innerHTML = `<img src="${url}" alt="Profile photo">`;
+             }
+         }
+      });
+
+      // Handle skills array
+      if (draftData.skills) {
+         const el = document.querySelector('[name="skills"]');
+         if (el) {
+             if (Array.isArray(draftData.skills) && typeof draftData.skills[0] === 'string') {
+                 el.value = draftData.skills.join(', ');
+             } else {
+                 el.value = Array.isArray(draftData.skills) ? draftData.skills[0] : draftData.skills;
+             }
+         }
+      }
+
+      // Handle dynamic sections (MongoDB nested arrays)
+      const dynamicSections = {
+        'education': addEducation, 'experience': addExperience, 'projects': addProject,
+        'languages': addLanguage, 'awards': addAward, 'certifications': addCertification,
+        'publications': addPublication, 'volunteering': addVolunteering, 'competitions': addCompetition,
+        'conferences': addConference, 'testscores': addTestScore, 'patents': addPatent,
+        'scholarships': addScholarship, 'extracurricular': addExtracurricular
+      };
+      
+      for (const [section, addFunc] of Object.entries(dynamicSections)) {
+          if (Array.isArray(draftData[section])) {
+              draftData[section].forEach((item, index) => {
+                  if (index > 0) addFunc();
+                  for (const [key, val] of Object.entries(item)) {
+                      const el = document.querySelector(`[name="${section}[${index}][${key}]"]`);
+                      if (el) el.value = val;
+                  }
+              });
+          }
+      }
+
+      // Handle flat FormData (autosave drafts)
+      for (const [key, val] of Object.entries(draftData)) {
+          if (key.includes('[')) {
+             const match = key.match(/([a-zA-Z_]+)\[(\d+)\]/);
+             if (match) {
+                const secName = match[1];
+                const idx = parseInt(match[2]);
+                const countVarMap = {
+                   'education': eduCount, 'experience': expCount, 'projects': projCount,
+                   'languages': langCount, 'awards': awardCount, 'certifications': certCount,
+                   'publications': pubCount, 'volunteering': volCount, 'competitions': compCount,
+                   'conferences': confCount, 'testscores': tsCount, 'patents': patCount,
+                   'scholarships': scholCount, 'extracurricular': extraCount
+                };
+                if (countVarMap[secName] && idx >= countVarMap[secName]) {
+                   dynamicSections[secName]();
+                }
+             }
+             const el = document.querySelector(`[name="${key}"]`);
+             if (el) el.value = Array.isArray(val) ? val[0] : val;
+          }
+      }
+    {% endif %}
+
+    function injectSaveButtons() {
+      document.querySelectorAll('.section-nav-btns').forEach(container => {
+        if (container.querySelector('.btn-save-generate')) return;
+
+        const saveBtn = document.createElement('button');
+        saveBtn.type = 'submit';
+        saveBtn.className = 'btn-save-generate';
+        saveBtn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save & Generate
+        `;
+
+        const nextBtn = container.querySelector('.btn-next');
+        if (nextBtn) {
+          nextBtn.parentNode.insertBefore(saveBtn, nextBtn);
+        } else {
+          const spacerDiv = container.querySelector('button + div') || container.querySelector('div');
+          if (spacerDiv) {
+            spacerDiv.parentNode.replaceChild(saveBtn, spacerDiv);
+          } else {
+            container.appendChild(saveBtn);
+          }
+        }
+      });
+    }
+
+    injectSaveButtons();
+  </script>
+  <script src="{{ url_for('static', filename='js/dropdown.js') }}"></script>
+</body>
+</html>

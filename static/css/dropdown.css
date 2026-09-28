@@ -1,0 +1,165 @@
+/* ResumeMaker User Menu Dropdown Styles — Modern Glassmorphism */
+
+.user-menu-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-trigger {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  position: relative;
+}
+
+.dropdown-trigger:hover {
+  transform: scale(1.08);
+}
+
+.dropdown-trigger:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 3px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 240px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 8px;
+  display: none;
+  z-index: 1000;
+  transform-origin: top right;
+  animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.dropdown-header {
+  padding: 10px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+.dropdown-header .user-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: #f8fafc;
+  letter-spacing: -0.2px;
+}
+
+.dropdown-header .user-email {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 6px 4px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  color: #cbd5e1 !important;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  border-radius: 10px;
+  transition: all 0.18s ease;
+  cursor: pointer;
+  text-align: left;
+  background: transparent;
+  border: none;
+  width: 100%;
+}
+
+.dropdown-item svg {
+  stroke: #94a3b8;
+  transition: stroke 0.18s ease, transform 0.18s ease;
+  flex-shrink: 0;
+}
+
+.dropdown-item:hover {
+  background: rgba(99, 102, 241, 0.15);
+  color: #ffffff !important;
+  transform: translateX(2px);
+}
+
+.dropdown-item:hover svg {
+  stroke: #a5b4fc;
+  transform: scale(1.1);
+}
+
+.dropdown-item.logout-item:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5 !important;
+}
+
+.dropdown-item.logout-item:hover svg {
+  stroke: #ef4444;
+}
+
+/* User Avatar Custom styles */
+.user-menu-dropdown .user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #ffffff;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+  transition: box-shadow 0.25s ease;
+}
+
+.dropdown-trigger:hover .user-avatar {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.55);
+}
+
+/* Responsive Hide Utilities */
+@media (max-width: 576px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}

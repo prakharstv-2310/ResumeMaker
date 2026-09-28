@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Resumes — ResumeMaker</title>
+  <meta name="description" content="View and manage all your saved resumes on ResumeMaker.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown.css') }}" />
+  <style>
+    :root {
+      --bg: #070a12;
+      --card: rgba(15, 23, 42, 0.78);
+      --card-hover: rgba(30, 41, 59, 0.9);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(99, 102, 241, 0.4);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --dim: #64748b;
+      --primary: #6366f1;
+      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 45%, #06b6d4 100%);
+      --header-h: 68px;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: -2;
+      background: radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.15) 0%, transparent 45%),
+                  radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.15) 0%, transparent 45%),
+                  var(--bg);
+      pointer-events: none;
+    }
+
+    .glass-blobs { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .blob { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35; }
+    .blob-1 { background: #6366f1; width: 500px; height: 500px; top: -150px; left: -100px; animation: drift 20s infinite alternate ease-in-out; }
+    .blob-2 { background: #a855f7; width: 450px; height: 450px; bottom: -100px; right: -100px; animation: drift 18s infinite alternate-reverse ease-in-out; }
+    @keyframes drift { 0% { transform: translate(0,0); } 100% { transform: translate(50px, 50px); } }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(7, 10, 18, 0.82);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h);
+    }
+    .hdr {
+      max-width: 1200px; margin: 0 auto; height: 100%;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 28px;
+    }
+    .brand-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand-icon-box {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--primary-gradient);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+    .logo {
+      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 21px;
+      letter-spacing: -0.5px; color: #ffffff; text-decoration: none;
+    }
+    .logo .accent-text {
+      background: var(--primary-gradient);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .logo .dot { color: #06b6d4; }
+    .hdr-right { display: flex; align-items: center; gap: 16px; }
+
+    .btn-new {
+      display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px;
+      background: var(--primary-gradient); color: #fff; text-decoration: none;
+      font-size: 13.5px; font-weight: 600; border: 1px solid rgba(255,255,255,0.2);
+      cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    }
+    .btn-new:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139, 92, 246, 0.55); }
+
+    /* Main Container */
+    main { max-width: 1200px; margin: 0 auto; padding: 44px 28px 80px; }
+    .page-title {
+      font-family: 'Outfit', sans-serif; font-size: 34px; font-weight: 800;
+      color: #ffffff; letter-spacing: -0.5px; margin-bottom: 6px;
+    }
+    .page-sub { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
+
+    /* Stats Row */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 36px; }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 20px 24px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    }
+    .stat-num {
+      font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 800;
+      background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 12.5px; color: var(--muted); font-weight: 500; margin-top: 4px; }
+
+    /* Search Bar */
+    .search-filter-wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .search-input-box {
+      position: relative; flex: 1; max-width: 380px; min-width: 240px;
+    }
+    .search-input-box svg {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--dim); pointer-events: none;
+    }
+    .search-input {
+      width: 100%; padding: 10px 14px 10px 42px; border-radius: 10px;
+      background: rgba(2, 6, 23, 0.6); border: 1px solid var(--border);
+      color: #fff; font-size: 13.5px; font-family: inherit;
+    }
+    .search-input:focus {
+      outline: none; border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+
+    /* Grid */
+    .resumes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+
+    /* Card */
+    .resume-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+      overflow: hidden; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex; flex-direction: column;
+    }
+    .resume-card:hover {
+      transform: translateY(-5px); border-color: var(--border-hover);
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 0 30px rgba(99, 102, 241, 0.2);
+    }
+
+    .card-preview {
+      height: 130px; position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .preview-modern { background: linear-gradient(135deg, #1e1b4b, #312e81); }
+    .preview-minimal { background: linear-gradient(135deg, #0f172a, #1e293b); }
+    .preview-creative { background: linear-gradient(135deg, #064e3b, #065f46); }
+    .preview-developer { background: linear-gradient(135deg, #022c22, #0f172a); }
+    .preview-startup { background: linear-gradient(135deg, #431407, #7c2d12); }
+    .preview-executive { background: linear-gradient(135deg, #1c1917, #292524); }
+    .preview-academic { background: linear-gradient(135deg, #172554, #1e3a8a); }
+
+    .preview-mock {
+      width: 100px; height: 80px; background: rgba(255, 255, 255, 0.08);
+      border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 4px;
+    }
+    .mock-bar { height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.25); }
+    .mock-bar.wide { width: 85%; }
+    .mock-bar.med { width: 60%; }
+    .mock-bar.short { width: 40%; }
+    .mock-bar.accent { background: #818cf8; width: 45%; }
+
+    .template-badge {
+      position: absolute; top: 12px; right: 12px;
+      padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+      background: rgba(15, 23, 42, 0.85); color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      text-transform: capitalize; backdrop-filter: blur(8px);
+    }
+
+    .card-body { padding: 22px; flex: 1; display: flex; flex-direction: column; }
+    .card-name {
+      font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700;
+      color: #ffffff; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-date { font-size: 12px; color: var(--dim); margin-bottom: 12px; }
+    .card-summary {
+      font-size: 13px; color: var(--muted); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .card-skills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; margin-top: auto; }
+    .skill-pill {
+      padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 500;
+      background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.25);
+      color: #c7d2fe;
+    }
+
+    .card-actions {
+      display: flex; gap: 8px; border-top: 1px solid var(--border);
+      padding-top: 16px; margin-top: auto;
+    }
+    .btn-edit {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px; border-radius: 9px; background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.35); color: #a5b4fc; text-decoration: none;
+      font-size: 13px; font-weight: 600; transition: all 0.2s; cursor: pointer;
+    }
+    .btn-edit:hover { background: rgba(99, 102, 241, 0.28); color: #ffffff; border-color: #818cf8; }
+
+    .btn-view {
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 9px 12px; border-radius: 9px; background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border); color: #cbd5e1; font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .btn-view:hover { background: rgba(255, 255, 255, 0.1); color: #ffffff; }
+
+    .btn-pdf {
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 9px 12px; border-radius: 9px; background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25); color: #34d399; font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: all 0.2s; cursor: pointer;
+    }
+    .btn-pdf:hover { background: rgba(16, 185, 129, 0.22); border-color: #34d399; }
+
+    .btn-delete {
+      display: flex; align-items: center; justify-content: center;
+      padding: 9px 12px; border-radius: 9px; background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; font-size: 13px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-delete:hover { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ffffff; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 80px 24px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+      max-width: 580px; margin: 40px auto 0;
+    }
+    .empty-icon {
+      width: 80px; height: 80px; margin: 0 auto 20px;
+      background: rgba(99, 102, 241, 0.12); border-radius: 22px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+    .empty-icon svg { stroke: #a5b4fc; }
+    .empty-title { font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800; margin-bottom: 8px; color: #fff; }
+    .empty-sub { color: var(--muted); font-size: 15px; margin-bottom: 28px; line-height: 1.5; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 28px; right: 28px; padding: 12px 20px; border-radius: 12px;
+      font-size: 13.5px; font-weight: 600; z-index: 9999; opacity: 0;
+      transform: translateY(10px); transition: all 0.3s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast-success { background: #064e3b; color: #34d399; border: 1px solid #059669; }
+    .toast-error { background: #450a0a; color: #f87171; border: 1px solid #dc2626; }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="glass-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <header>
+    <div class="hdr">
+      <a href="{{ url_for('home') }}" class="brand-wrap">
+        <div class="brand-icon-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <span class="logo">Resume<span class="accent-text">Maker</span><span class="dot">.</span></span>
+      </a>
+
+      <div class="hdr-right">
+        <a href="{{ url_for('new_resume') }}" class="btn-new" onclick="let name = prompt('Enter a name for your new resume:', 'My Resume'); if (name === null) return false; this.href = '{{ url_for('new_resume') }}?name=' + encodeURIComponent(name.trim() || 'My Resume');">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Resume
+        </a>
+
+        <!-- User Dropdown Menu -->
+        <div class="user-menu-dropdown">
+          <button class="dropdown-trigger" onclick="toggleUserDropdown(event)" aria-label="Toggle user menu">
+            <div class="user-avatar">{{ session['user']['username'][0].upper() }}</div>
+          </button>
+          <div class="dropdown-menu" id="userDropdownMenu">
+            <div class="dropdown-header">
+              <span class="user-name">{{ session['user']['username'] }}</span>
+              <span class="user-email">{{ session['user']['email'] }}</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="{{ url_for('dashboard') }}" class="dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Resume Studio
+            </a>
+            <a href="{{ url_for('my_resumes') }}" class="dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              My Resumes
+            </a>
+            {% if session['user']['email'] in ['admin@resumemaker.com', 'admin@resumate.com'] %}
+              <a href="{{ url_for('admin_dashboard') }}" class="dropdown-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="9" y1="9" x2="21" y2="9"/></svg>
+                Admin Panel
+              </a>
+            {% endif %}
+            <a href="{{ url_for('profile') }}" class="dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M16 20v-2a4 4 0 0 0-8 0v2"/></svg>
+              My Profile
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="{{ url_for('logout') }}" class="dropdown-item logout-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Sign Out
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <h1 class="page-title">My Resumes</h1>
+    <p class="page-sub">Manage, edit, duplicate, and export all your resumes in one place.</p>
+
+    {% if resumes %}
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num">{{ resumes|length }}</div>
+        <div class="stat-label">Total Resumes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">{{ resumes|selectattr('template','equalto','modern')|list|length }}</div>
+        <div class="stat-label">Modern Layouts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">{{ resumes|selectattr('template','equalto','minimal')|list|length }}</div>
+        <div class="stat-label">Minimal Layouts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">{{ resumes|selectattr('template','equalto','creative')|list|length }}</div>
+        <div class="stat-label">Creative Layouts</div>
+      </div>
+    </div>
+
+    <!-- Search filter bar -->
+    <div class="search-filter-wrap">
+      <div class="search-input-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-input" id="resumeSearchInput" placeholder="Filter resumes by title or skill..." oninput="filterResumes()">
+      </div>
+      <span style="font-size:13px;color:var(--dim);" id="resumesCountLabel">{{ resumes|length }} resumes found</span>
+    </div>
+
+    <div class="resumes-grid" id="resumesGrid">
+      {% for resume in resumes %}
+      {% set tmpl = resume.template or 'modern' %}
+      <div class="resume-card" id="card-{{ resume._id }}" data-search="{{ (resume.resume_name or '') ~ ' ' ~ (resume.name or '') ~ ' ' ~ (resume.skills|join(' ') if resume.skills else '') }}">
+        <div class="card-preview preview-{{ tmpl }}">
+          <div class="preview-mock">
+            <div class="mock-bar accent"></div>
+            <div class="mock-bar wide"></div>
+            <div class="mock-bar med"></div>
+            <div class="mock-bar short"></div>
+          </div>
+          <div class="template-badge">{{ tmpl }}</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">{{ resume.resume_name or resume.name or 'Untitled Resume' }}</div>
+          <div class="card-date local-date" data-utc="{{ resume.created_at.isoformat() if resume.created_at else '' }}">
+            {% if resume.created_at %}
+              {{ resume.created_at.strftime('%b %d, %Y, %I:%M %p') }}
+            {% else %}
+              Recently saved
+            {% endif %}
+          </div>
+          {% if resume.summary %}
+          <div class="card-summary">{{ resume.summary }}</div>
+          {% endif %}
+          {% if resume.skills %}
+          <div class="card-skills">
+            {% for skill in resume.skills[:5] %}
+            <span class="skill-pill">{{ skill }}</span>
+            {% endfor %}
+            {% if resume.skills|length > 5 %}
+            <span class="skill-pill">+{{ resume.skills|length - 5 }}</span>
+            {% endif %}
+          </div>
+          {% endif %}
+          <div class="card-actions">
+            <a href="{{ url_for('edit_resume', resume_id=resume._id) }}" class="btn-edit" title="Edit in Studio">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Edit
+            </a>
+            <a href="{{ url_for('view_resume', resume_id=resume._id) }}" class="btn-view" title="View Preview">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              View
+            </a>
+            <a href="{{ url_for('view_resume', resume_id=resume._id) }}?print=1" class="btn-pdf" target="_blank" title="Export PDF">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              PDF
+            </a>
+            <button class="btn-delete" onclick="deleteResume('{{ resume._id }}')" title="Delete Resume">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <h2 class="empty-title">No Resumes Found</h2>
+      <p class="empty-sub">You haven't built any resumes yet. Create your first ATS-optimized resume in minutes with Gemini AI assistance.</p>
+      <a href="{{ url_for('new_resume') }}" class="btn-new" style="display:inline-flex;margin:0 auto" onclick="let name = prompt('Enter a name for your new resume:', 'My Resume'); if (name === null) return false; this.href = '{{ url_for('new_resume') }}?name=' + encodeURIComponent(name.trim() || 'My Resume');">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Build Your First Resume
+      </a>
+    </div>
+    {% endif %}
+  </main>
+
+  <footer style="max-width:1200px;margin:0 auto;padding:0 28px 40px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;font-size:13px;color:var(--dim);">
+    <span>&copy; 2026 ResumeMaker. All rights reserved.</span>
+    <span>UI designed &amp; built by <strong style="font-family:'Outfit',sans-serif;font-weight:700;background:var(--primary-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Prakhar Srivastava</strong></span>
+  </footer>
+
+  <script>
+    async function deleteResume(id) {
+      if (!confirm('Are you sure you want to delete this resume? This cannot be undone.')) return;
+      try {
+        const res = await fetch(`/resume/${id}/delete`, { method: 'POST' });
+        const data = await res.json();
+        if (data.status === 'ok') {
+          const card = document.getElementById('card-' + id);
+          if (card) {
+            card.style.animation = 'fadeOut 0.3s ease forwards';
+            setTimeout(() => {
+              card.remove();
+              updateCount();
+            }, 300);
+          }
+          showToast('Resume deleted successfully', 'success');
+        } else {
+          showToast('Delete failed: ' + (data.message || 'Unknown error'), 'error');
+        }
+      } catch {
+        showToast('Network error while deleting', 'error');
+      }
+    }
+
+    function filterResumes() {
+      const q = (document.getElementById('resumeSearchInput')?.value || '').toLowerCase().trim();
+      const cards = document.querySelectorAll('.resume-card');
+      let visible = 0;
+      cards.forEach(card => {
+        const text = (card.getAttribute('data-search') || '').toLowerCase();
+        if (!q || text.includes(q)) {
+          card.style.display = 'flex';
+          visible++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      const lbl = document.getElementById('resumesCountLabel');
+      if (lbl) lbl.textContent = `${visible} resumes found`;
+    }
+
+    function updateCount() {
+      const remaining = document.querySelectorAll('.resume-card').length;
+      const lbl = document.getElementById('resumesCountLabel');
+      if (lbl) lbl.textContent = `${remaining} resumes found`;
+      if (remaining === 0) location.reload();
+    }
+
+    function showToast(msg, type) {
+      const t = document.createElement('div');
+      t.className = `toast toast-${type}`;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('show'));
+      setTimeout(() => {
+        t.classList.remove('show');
+        setTimeout(() => t.remove(), 400);
+      }, 3000);
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `@keyframes fadeOut { 0%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(0.95)} }`;
+    document.head.appendChild(style);
+
+    // Convert UTC timestamps to user's local timezone
+    document.querySelectorAll('.local-date').forEach(el => {
+      const utcStr = el.getAttribute('data-utc');
+      if (utcStr) {
+        const date = new Date(utcStr.endsWith('Z') ? utcStr : utcStr + 'Z');
+        if (!isNaN(date.getTime())) {
+          const options = { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+          el.textContent = date.toLocaleString('en-US', options);
+        }
+      }
+    });
+  </script>
+  <script src="{{ url_for('static', filename='js/dropdown.js') }}"></script>
+</body>
+</html>
