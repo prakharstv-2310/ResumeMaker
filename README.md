@@ -1,7 +1,5 @@
 # ResumeMaker — AI Resume Builder 🚀
 
-> UI redesigned by **Prakhar Srivastava**
-
 ResumeMaker is a modern, high-fidelity web application built with Python Flask, MongoDB, and the Google Gemini API. It features a premium, responsive glassmorphic UI and empowers users to construct, organize, and instantly export professional resume profiles into print-ready A4 PDF documents.
 
 ---
@@ -118,7 +116,7 @@ When deploying on Render, configure the following **Environment Variables** unde
 
 ## 👤 Author
 
-**Prakhar Srivastava** — author, UI design & front-end engineering.
+**Prakhar Srivastava** 
 
 ---
 
